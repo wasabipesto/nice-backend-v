@@ -7,6 +7,7 @@ const logger = require('morgan')
 const dashboardRouter = require('./routes/dashboard.js')
 const claimRouter = require('./routes/claim.js')
 const submitRouter = require('./routes/submit.js')
+const statsJob = require('./scheduled/stats.js')
 
 const app = express()
 
@@ -23,6 +24,7 @@ app.use(express.static(path.join(__dirname, 'public')))
 app.use('/api/dashboard', dashboardRouter)
 app.use('/api/claim', claimRouter)
 app.use('/api/submit', submitRouter)
+statsJob.job()
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

@@ -13,6 +13,7 @@
     "http-errors": "~1.6.3",
     "jade": "~1.11.0",
     "morgan": "~1.9.1",
+    "node-schedule": "^2.1.1",
     "pg-promise": "^11.4.3"
   }
 }
