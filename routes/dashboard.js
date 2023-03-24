@@ -1,0 +1,27 @@
+const express = require('express')
+const router = express.Router()
+const db = require('../helpers/db.js')
+
+// DETAILED CLAIM
+router.get('/', async function (req, res, next) {
+  // GET SETTINGS
+  try {
+    const base_data = await db.many('SELECT * FROM BaseData ORDER BY base;')
+    const nice_numbers = await db.manyOrNone(
+      'SELECT \
+        NiceNumbers.number AS number, \
+        NiceNumbers.uniques/CAST(SearchFieldsDetailed.base AS DECIMAL) \
+          AS niceness, \
+        SearchFieldsDetailed.username AS discoverer \
+      FROM NiceNumbers \
+      JOIN SearchFieldsDetailed ON \
+        NiceNumbers.field_id = SearchFieldsDetailed.id \
+      ORDER BY niceness DESC LIMIT 10000'
+    )
+    return res.send({ base_data: base_data, nice_numbers: nice_numbers })
+  } catch (e) {
+    return res.status(500).send(e)
+  }
+})
+
+module.exports = router
