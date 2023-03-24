@@ -181,7 +181,10 @@
                 name: 'B' + item.base,
                 type: 'bar',
                 //visible: index % 9 === 8 ? 'true' : 'legendonly',
-                visible: Math.random() < 0.1 ? 'true' : 'legendonly',
+                visible:
+                  item.base === +response.settings.base_current_detailed
+                    ? 'true'
+                    : 'legendonly',
               }
             } else {
               return null

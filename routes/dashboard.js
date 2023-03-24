@@ -2,10 +2,15 @@ const express = require('express')
 const router = express.Router()
 const db = require('../helpers/db.js')
 
-// DETAILED CLAIM
+// DASHBOARD
 router.get('/', async function (req, res, next) {
-  // GET SETTINGS
   try {
+    const settings = await db.many('SELECT * FROM Settings;').then((data) => {
+      return data.reduce(
+        (obj, item) => Object.assign(obj, { [item.key]: item.value }),
+        {}
+      )
+    })
     const base_data = await db.many('SELECT * FROM BaseData ORDER BY base;')
     const nice_numbers = await db.manyOrNone(
       'SELECT \
@@ -18,7 +23,11 @@ router.get('/', async function (req, res, next) {
         NiceNumbers.field_id = SearchFieldsDetailed.id \
       ORDER BY niceness DESC LIMIT 10000'
     )
-    return res.send({ base_data: base_data, nice_numbers: nice_numbers })
+    return res.send({
+      settings: settings,
+      base_data: base_data,
+      nice_numbers: nice_numbers,
+    })
   } catch (e) {
     return res.status(500).send(e)
   }
