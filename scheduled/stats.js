@@ -9,7 +9,9 @@ const job = schedule.scheduleJob('*/10 * * * *', async function () {
     .many('SELECT * FROM BaseData ORDER BY base ASC;')
     .then((res) => res.map((row) => row.base))
 
+  // LOOP THROUGH ALL BASES
   bases.map(async (base) => {
+    // get completed ranges
     const { range_complete_detailed } = await db.one(
       'SELECT \
         sum(search_range) AS range_complete_detailed \
@@ -30,6 +32,7 @@ const job = schedule.scheduleJob('*/10 * * * *', async function () {
         completed_time IS NOT NULL;',
       { base: base }
     )
+    // get unique distributions
     const unique_distribution = await db
       .manyOrNone(
         'SELECT unique_distribution \
@@ -50,6 +53,7 @@ const job = schedule.scheduleJob('*/10 * * * *', async function () {
         }, {})
       })
 
+    // calculate mean & niceness
     let niceness_mean = null
     let niceness_stdev = null
     let niceness_distribution = null
@@ -77,12 +81,13 @@ const job = schedule.scheduleJob('*/10 * * * *', async function () {
       const maxCount = Math.max(...Object.values(unique_distribution))
       niceness_distribution = {}
       for (const [key, value] of Object.entries(unique_distribution)) {
-        niceness_distribution[Number.parseFloat((key / base).toFixed(2))] =
+        niceness_distribution[Number.parseFloat((key / base).toFixed(3))] =
           value / maxCount
       }
+    }
 
-      await db.none(
-        'UPDATE BaseData \
+    await db.none(
+      'UPDATE BaseData \
         SET \
           range_complete_detailed = ${range_complete_detailed}, \
           range_complete_niceonly = ${range_complete_niceonly}, \
@@ -90,16 +95,15 @@ const job = schedule.scheduleJob('*/10 * * * *', async function () {
           niceness_stdev = ${niceness_stdev}, \
           niceness_distribution = ${niceness_distribution} \
         WHERE base = ${base};',
-        {
-          base: base,
-          range_complete_detailed: range_complete_detailed || 0,
-          range_complete_niceonly: range_complete_niceonly || 0,
-          niceness_mean: niceness_mean,
-          niceness_stdev: niceness_stdev,
-          niceness_distribution: niceness_distribution,
-        }
-      )
-    }
+      {
+        base: base,
+        range_complete_detailed: range_complete_detailed || 0,
+        range_complete_niceonly: range_complete_niceonly || 0,
+        niceness_mean: niceness_mean,
+        niceness_stdev: niceness_stdev,
+        niceness_distribution: niceness_distribution,
+      }
+    )
   })
   console.log('Scheduled job complete!')
 })
