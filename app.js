@@ -1,14 +1,14 @@
-var createError = require('http-errors')
-var express = require('express')
-var path = require('path')
-var cookieParser = require('cookie-parser')
-var logger = require('morgan')
+const createError = require('http-errors')
+const express = require('express')
+const path = require('path')
+const cookieParser = require('cookie-parser')
+const logger = require('morgan')
 
-var indexRouter = require('./routes/index.js')
-var claimRouter = require('./routes/claim.js')
-var submitRouter = require('./routes/submit.js')
+const indexRouter = require('./routes/index.js')
+const claimRouter = require('./routes/claim.js')
+const submitRouter = require('./routes/submit.js')
 
-var app = express()
+const app = express()
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'))

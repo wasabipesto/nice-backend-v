@@ -1,5 +1,5 @@
 require('dotenv').config()
-const pgp = require('pg-promise')({})
+const pgp = require('pg-promise')({ capSQL: true })
 
 pgp.pg.types.setTypeParser(20, BigInt) // Type Id 20 = BIGINT | BIGSERIAL
 const db = pgp({

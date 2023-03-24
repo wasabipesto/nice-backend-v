@@ -1,6 +1,7 @@
-var express = require('express')
-var router = express.Router()
-var db = require('../helpers/db.js')
+const express = require('express')
+const router = express.Router()
+const db = require('../helpers/db.js')
+const pgp = require('pg-promise')({ capSQL: true })
 
 // DETAILED SUBMIT
 router.post('/detailed', async function (req, res, next) {
@@ -56,16 +57,14 @@ router.post('/detailed', async function (req, res, next) {
   }
 
   // INSERT NEAR MISSES
-  // TODO: Batch this
-  await Promise.all(
-    Object.entries(near_misses).map(async ([number, uniques]) => {
-      await db.none(
-        'INSERT INTO NiceNumbers (field_id, number, uniques) \
-        VALUES (${id}, ${num}, ${uniques});',
-        { id: field_id, num: number, uniques: uniques }
-      )
+  if (near_misses.length) {
+    const nm_columns = new pgp.helpers.ColumnSet(['id', 'number', 'uniques'])
+    const nm_data = Object.entries(near_misses).map(([number, uniques]) => {
+      return { id: field_id, number: number, uniques: uniques }
     })
-  )
+    console.log(nm_data)
+    db.none(pgp.helpers.insert(nm_data, nm_columns, 'NiceNumbers'))
+  }
 
   // UPDATE FIELD
   const updated_field = await db.one(

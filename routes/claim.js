@@ -1,6 +1,6 @@
-var express = require('express')
-var router = express.Router()
-var db = require('../helpers/db.js')
+const express = require('express')
+const router = express.Router()
+const db = require('../helpers/db.js')
 
 // DETAILED CLAIM
 router.get('/detailed', async function (req, res, next) {
