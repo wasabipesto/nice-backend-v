@@ -1,7 +1,6 @@
 const express = require('express')
 const router = express.Router()
 const db = require('../helpers/db.js')
-const pgp = require('pg-promise')({ capSQL: true })
 
 router.post('/', async function (req, res, next) {
   // GET INPUT DATA
@@ -27,12 +26,12 @@ router.post('/', async function (req, res, next) {
     return res.status(400).send('Error: field has already been submitted.')
   }
   // check if nice_list is a list
-  if (nice_list.isArray()) {
+  if (typeof nice_list !== 'object' && !Array.isArray(nice_list)) {
     return res.status(400).send('Error: nice_list must be a list.')
   }
 
   // UPDATE FIELD
-  const updated_field = await db.one(
+  await db.one(
     'UPDATE SearchFieldsNiceonly SET \
         completed_time = now(), \
         username = ${username}, \
@@ -47,9 +46,6 @@ router.post('/', async function (req, res, next) {
       id: field_id,
     }
   )
-  if (!updated_field) {
-    return res.status(500).send('Error: field could not be updated.')
-  }
 
   res.status(200).send('Success.')
 })

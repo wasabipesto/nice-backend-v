@@ -162,7 +162,7 @@ async function assign_first(
       claim_duration_hours: claim_duration_hours,
       search_start: search_start,
       search_end: search_end,
-      search_range: search_start - search_end,
+      search_range: search_end - search_start,
     }
   )
 }

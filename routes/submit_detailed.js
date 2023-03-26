@@ -41,6 +41,7 @@ router.post('/', async function (req, res, next) {
     0
   )
   if (sum_unique_count !== +selected_field.search_range) {
+    console.log([sum_unique_count, +selected_field.search_range])
     return res.status(400).send('Error: invalid unique_count values.')
   }
   // check there are enough near misses

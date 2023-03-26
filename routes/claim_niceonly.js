@@ -117,7 +117,7 @@ async function assign_expired_any_base(
         search_range <= ${max_range} AND \
         completed_time IS NULL AND \
         expired_time < now() \
-      ORDER BY search_start ASC LIMIT 1 \
+      ORDER BY RANDOM () LIMIT 1 \
     ) RETURNING *;",
     {
       username: username,
@@ -162,7 +162,7 @@ async function assign_first(
       claim_duration_hours: claim_duration_hours,
       search_start: search_start,
       search_end: search_end,
-      search_range: search_start - search_end,
+      search_range: search_end - search_start,
     }
   )
 }
@@ -190,7 +190,7 @@ async function assign_subsequent(
       claim_duration_hours: claim_duration_hours,
       search_start: search_start,
       search_end: search_end,
-      search_range: search_start - search_end,
+      search_range: search_end - search_start,
     }
   )
 }
@@ -295,8 +295,8 @@ router.get('/', async function (req, res, next) {
         base,
         username,
         claim_duration_hours,
-        first_range_start,
-        first_range_end
+        first_range_end,
+        first_range_start
       )
       if (first_field) {
         console.log('    Assigning first field in new base...')
@@ -335,8 +335,8 @@ router.get('/', async function (req, res, next) {
       base,
       username,
       claim_duration_hours,
-      subseq_range_start,
-      subseq_range_end
+      subseq_range_end,
+      subseq_range_start
     )
 
     // Step 4. Return new field
