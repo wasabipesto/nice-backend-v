@@ -5,12 +5,6 @@ const db = require('../helpers/db.js')
 // DASHBOARD
 router.get('/', async function (req, res, next) {
   try {
-    const settings = await db.many('SELECT * FROM Settings;').then((data) => {
-      return data.reduce(
-        (obj, item) => Object.assign(obj, { [item.key]: item.value }),
-        {}
-      )
-    })
     const base_data = await db.many('SELECT * FROM BaseData ORDER BY base;')
     const nice_numbers = await db.manyOrNone(
       'SELECT \
@@ -24,7 +18,6 @@ router.get('/', async function (req, res, next) {
       ORDER BY niceness DESC LIMIT 10000'
     )
     return res.send({
-      settings: settings,
       base_data: base_data,
       nice_numbers: nice_numbers,
     })
