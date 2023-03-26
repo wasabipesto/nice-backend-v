@@ -9,11 +9,9 @@ INSERT INTO Settings (
 ) VALUES (
   'username_default', 'anonymous'
 ),(
+  'claim_chance_random', '0.1'
+),(
   'claim_duration_hours', '24'
-),(
-  'base_current_detailed', '10'
-),(
-  'base_current_niceonly', '10'
 ),(
   'checkout_range_minimum', '100000'
 ),(
@@ -29,7 +27,10 @@ CREATE TABLE IF NOT EXISTS BaseData (
   range_end               NUMERIC NOT NULL,
   range_total             NUMERIC NOT NULL,
   range_complete_detailed NUMERIC NOT NULL DEFAULT 0,
+  status_detailed         INTEGER NOT NULL DEFAULT 0, 
+    -- Status Codes: 0 = None assigned, 1 = Some assigned, 2 = All assigned, 3 = All complete
   range_complete_niceonly NUMERIC NOT NULL DEFAULT 0,
+  status_niceonly         INTEGER NOT NULL DEFAULT 0,
   niceness_mean           REAL,
   niceness_stdev          REAL,
   niceness_distribution   JSONB,
@@ -225,9 +226,8 @@ DROP TABLE IF EXISTS NiceNumbers; -- for external reference in NiceNumbers
 DROP TABLE IF EXISTS SearchFieldsDetailed;
 CREATE TABLE IF NOT EXISTS SearchFieldsDetailed (
   id                  SERIAL PRIMARY KEY,
-  canon               BOOLEAN NOT NULL DEFAULT TRUE,
   base                INTEGER NOT NULL,
-  search_start        NUMERIC NOT NULL,
+  search_start        NUMERIC NOT NULL UNIQUE,
   search_end          NUMERIC NOT NULL,
   search_range        NUMERIC NOT NULL,
   claimed_time        TIMESTAMP NOT NULL,
@@ -241,9 +241,8 @@ CREATE TABLE IF NOT EXISTS SearchFieldsDetailed (
 DROP TABLE IF EXISTS SearchFieldsNiceonly;
 CREATE TABLE IF NOT EXISTS SearchFieldsNiceonly (
   id              SERIAL PRIMARY KEY,
-  canon           BOOLEAN NOT NULL DEFAULT TRUE,
   base            INTEGER NOT NULL,
-  search_start    NUMERIC NOT NULL,
+  search_start    NUMERIC NOT NULL UNIQUE,
   search_end      NUMERIC NOT NULL,
   search_range    NUMERIC NOT NULL,
   claimed_time    TIMESTAMP NOT NULL,
@@ -254,7 +253,7 @@ CREATE TABLE IF NOT EXISTS SearchFieldsNiceonly (
   nice_list       JSONB
 );
 
-DROP TABLE IF EXISTS NiceNumbers;
+-- DROP TABLE IF EXISTS NiceNumbers;
 CREATE TABLE IF NOT EXISTS NiceNumbers (
   field_id  INTEGER NOT NULL REFERENCES SearchFieldsDetailed (id),
   number    NUMERIC PRIMARY KEY,

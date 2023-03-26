@@ -135,6 +135,13 @@
 
     <script>
       Plotly.d3.json('/api/dashboard', (err, response) => {
+        var progressBar = document.getElementById('base-progress')
+        const current_base = response.base_data.find(
+          (item) => item.range_total !== item.range_complete_detailed
+        )
+        progressBar.value = current_base.range_complete_detailed
+        progressBar.max = current_base.range_total
+
         var layout = {
           title: 'Niceness Mean and Standard Deviation',
           margin: { l: 60, r: 40, t: 60, b: 40 },
@@ -182,11 +189,8 @@
                 y: Object.values(item.niceness_distribution),
                 name: 'B' + item.base,
                 type: 'bar',
-                //visible: index % 9 === 8 ? 'true' : 'legendonly',
                 visible:
-                  item.base === +response.settings.base_current_detailed
-                    ? 'true'
-                    : 'legendonly',
+                  item.base === +current_base.base ? 'true' : 'legendonly',
               }
             } else {
               return null
@@ -245,13 +249,6 @@
         ]
         var config = { responsive: true }
         Plotly.newPlot('search-range', data, layout, config)
-
-        var progressBar = document.getElementById('base-progress')
-        const current_base = response.base_data.find(
-          (item) => item.range_total !== item.range_complete_detailed
-        )
-        progressBar.value = current_base.range_complete_detailed
-        progressBar.max = current_base.range_total
 
         var layout = {
           title: 'Notably Nice Numbers',

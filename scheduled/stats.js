@@ -2,7 +2,7 @@ const db = require('../helpers/db.js')
 const schedule = require('node-schedule')
 
 const job = schedule.scheduleJob('*/10 * * * *', async function () {
-  console.log('Starting scheduled job...')
+  console.log('Processing stats...')
 
   // GET BASES TO UPDATE
   const bases = await db
@@ -18,7 +18,6 @@ const job = schedule.scheduleJob('*/10 * * * *', async function () {
       FROM SearchFieldsDetailed \
       WHERE \
         base = ${base} AND \
-        canon = true AND \
         completed_time IS NOT NULL;',
       { base: base }
     )
@@ -28,7 +27,6 @@ const job = schedule.scheduleJob('*/10 * * * *', async function () {
       FROM SearchFieldsNiceonly \
       WHERE \
         base = ${base} AND \
-        canon = true AND \
         completed_time IS NOT NULL;',
       { base: base }
     )
@@ -39,7 +37,6 @@ const job = schedule.scheduleJob('*/10 * * * *', async function () {
         FROM SearchFieldsDetailed \
         WHERE \
           base = ${base} AND \
-          canon = TRUE AND \
           completed_time IS NOT NULL;',
         { base: base }
       )
@@ -105,7 +102,7 @@ const job = schedule.scheduleJob('*/10 * * * *', async function () {
       }
     )
   })
-  console.log('Scheduled job complete!')
+  console.log('Stats processing complete!')
 })
 
 module.exports = job

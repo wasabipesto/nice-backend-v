@@ -4,7 +4,7 @@ const db = require('../helpers/db.js')
 const pgp = require('pg-promise')({ capSQL: true })
 
 // DETAILED SUBMIT
-router.post('/detailed', async function (req, res, next) {
+router.post('/', async function (req, res, next) {
   // GET QUERY DATA
   const field_id = req.body.id
   const username = req.body.username
