@@ -29,7 +29,6 @@ const job = schedule.scheduleJob('*/10 * * * *', async function () {
       const base = i.base
 
       // UPDATE STATUS
-      // Step 1. Get the highest field
       const last_field = await db.oneOrNone(
         'SELECT * FROM SearchFieldsDetailed WHERE \
           base = ${base} \

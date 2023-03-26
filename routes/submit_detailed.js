@@ -3,9 +3,8 @@ const router = express.Router()
 const db = require('../helpers/db.js')
 const pgp = require('pg-promise')({ capSQL: true })
 
-// DETAILED SUBMIT
 router.post('/', async function (req, res, next) {
-  // GET QUERY DATA
+  // GET INPUT DATA
   const field_id = req.body.id
   const username = req.body.username
   const client_version = req.body.client_version
