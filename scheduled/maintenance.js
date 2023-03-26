@@ -48,9 +48,11 @@ const job = schedule.scheduleJob('*/10 * * * *', async function () {
         ORDER BY id DESC LIMIT 1;',
         { base: base }
       )
+      let last_field_detailed_end
       if (last_field_detailed) {
+        last_field_detailed_end = last_field_detailed.search_end
         // some fields in base (status 1+)
-        if (last_field_detailed.search_end === i.range_end) {
+        if (last_field_detailed_end === i.range_end) {
           // all fields assigned (status 2+)
           if (i.range_complete_detailed === i.range_total) {
             // all fields completed (status 3)
@@ -75,6 +77,7 @@ const job = schedule.scheduleJob('*/10 * * * *', async function () {
         }
       } else {
         // no fields in base (status 0)
+        last_field_detailed_end = 0
         if (i.status_detailed !== 0) {
           await set_base_status_detailed(db, base, 0)
         }
@@ -90,7 +93,7 @@ const job = schedule.scheduleJob('*/10 * * * *', async function () {
         // some fields in base (status 1+)
         if (
           last_field_niceonly.search_end === i.range_start ||
-          last_field_niceonly.search_end < last_field_detailed.search_end
+          last_field_niceonly.search_end < last_field_detailed_end
         ) {
           // all fields assigned (status 2+)
           if (
