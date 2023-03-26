@@ -8,6 +8,7 @@ const dashboardRouter = require('./routes/dashboard.js')
 const claimDetailedRouter = require('./routes/claim_detailed.js')
 const submitDetailedRouter = require('./routes/submit_detailed.js')
 const statsJob = require('./scheduled/stats.js')
+const maintenanceJob = require('./scheduled/maintenance.js')
 
 const app = express()
 
@@ -25,6 +26,7 @@ app.use('/api/dashboard', dashboardRouter)
 app.use('/api/claim/detailed', claimDetailedRouter)
 app.use('/api/submit/detailed', submitDetailedRouter)
 statsJob.job()
+maintenanceJob.job()
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

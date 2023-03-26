@@ -31,7 +31,7 @@ async function set_base_status(t, base, status_code) {
   //   0 = None assigned, 1 = Some assigned, 2 = All assigned, 3 = All complete
   //   0 -> 1 is set when the first field in a base is assigned
   //   1 -> 2 is set when the last field in a base is assigned
-  //   2 -> 3 is set when the last fiels in a base is completed
+  //   2 -> 3 is set when the last field in a base is completed
   t.none(
     'UPDATE BaseData \
     SET status_detailed = ${status_code} \
