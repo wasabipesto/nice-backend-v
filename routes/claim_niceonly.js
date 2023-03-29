@@ -279,14 +279,14 @@ router.get('/', async function (req, res, next) {
     const base_status = +base_data.status_niceonly
 
     // calculate start and end points
-    const base_range_start = BigInt(base_data.range_end)
-    const base_range_end = BigInt(base_data.range_start)
-    const first_range_start = base_range_start
-    const first_range_end_tentative = first_range_start - BigInt(max_range)
-    const first_range_end =
-      first_range_end_tentative < base_range_end
-        ? base_range_end
-        : first_range_end_tentative
+    const base_range_bottom = BigInt(base_data.range_start)
+    const base_range_top = BigInt(base_data.range_end)
+    const first_range_top = base_range_top
+    const first_range_bottom_tentative = first_range_top - BigInt(max_range)
+    const first_range_bottom =
+      first_range_bottom_tentative < base_range_bottom
+        ? base_range_bottom
+        : first_range_bottom_tentative
 
     if (base_status === 0) {
       // ASSIGN FIRST FIELD
@@ -295,8 +295,8 @@ router.get('/', async function (req, res, next) {
         base,
         username,
         claim_duration_hours,
-        first_range_end,
-        first_range_start
+        first_range_bottom,
+        first_range_top
       )
       if (first_field) {
         console.log('    Assigning first field in new base...')
@@ -315,13 +315,13 @@ router.get('/', async function (req, res, next) {
     const prev_field = await get_previous_field(t, base)
 
     // Step 2. Calculate new range
-    const subseq_range_start = BigInt(prev_field.search_end)
-    const subseq_range_end_tentative = subseq_range_start - BigInt(max_range)
-    const subseq_range_end =
-      subseq_range_end_tentative < base_range_end
-        ? base_range_end
-        : subseq_range_end_tentative
-    if (subseq_range_start === subseq_range_end) {
+    const subseq_range_top = BigInt(prev_field.search_start)
+    const subseq_range_bottom_tentative = subseq_range_top - BigInt(max_range)
+    const subseq_range_bottom =
+      subseq_range_bottom_tentative < base_range_bottom
+        ? base_range_bottom
+        : subseq_range_bottom_tentative
+    if (subseq_range_top === subseq_range_bottom) {
       console.log(
         `    Base ${base} status was set to ${base_status} but there's no room left in the base!.`
       )
@@ -335,8 +335,8 @@ router.get('/', async function (req, res, next) {
       base,
       username,
       claim_duration_hours,
-      subseq_range_end,
-      subseq_range_start
+      subseq_range_bottom,
+      subseq_range_top
     )
 
     // Step 4. Return new field

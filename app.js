@@ -9,8 +9,7 @@ const claimDetailedRouter = require('./routes/claim_detailed.js')
 const claimNiceOnlyRouter = require('./routes/claim_niceonly.js')
 const submitDetailedRouter = require('./routes/submit_detailed.js')
 const submitNiceOnlyRouter = require('./routes/submit_niceonly.js')
-const statsJob = require('./scheduled/stats.js')
-const maintenanceJob = require('./scheduled/maintenance.js')
+const scheduledJob = require('./routes/scheduled.js')
 
 const app = express()
 
@@ -29,8 +28,7 @@ app.use('/api/claim/detailed', claimDetailedRouter)
 app.use('/api/claim/niceonly', claimNiceOnlyRouter)
 app.use('/api/submit/detailed', submitDetailedRouter)
 app.use('/api/submit/niceonly', submitNiceOnlyRouter)
-statsJob.job()
-maintenanceJob.job()
+scheduledJob.job()
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
