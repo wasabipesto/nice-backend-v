@@ -5,10 +5,14 @@ const cookieParser = require('cookie-parser')
 const logger = require('morgan')
 
 const dashboardRouter = require('./routes/dashboard.js')
+const numbersRouter = require('./routes/numbers.js')
+const fieldsRouter = require('./routes/fields.js')
+
 const claimDetailedRouter = require('./routes/claim_detailed.js')
 const claimNiceOnlyRouter = require('./routes/claim_niceonly.js')
 const submitDetailedRouter = require('./routes/submit_detailed.js')
 const submitNiceOnlyRouter = require('./routes/submit_niceonly.js')
+
 const scheduledJob = require('./routes/scheduled.js')
 
 const app = express()
@@ -24,10 +28,14 @@ app.use(cookieParser())
 app.use(express.static(path.join(__dirname, 'public')))
 
 app.use('/api/dashboard', dashboardRouter)
+app.use('/api/numbers', numbersRouter)
+app.use('/api/fields', fieldsRouter)
+
 app.use('/api/claim/detailed', claimDetailedRouter)
 app.use('/api/claim/niceonly', claimNiceOnlyRouter)
 app.use('/api/submit/detailed', submitDetailedRouter)
 app.use('/api/submit/niceonly', submitNiceOnlyRouter)
+
 scheduledJob.job()
 
 // catch 404 and forward to error handler

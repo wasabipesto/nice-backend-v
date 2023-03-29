@@ -234,7 +234,7 @@ router.get('/', async function (req, res, next) {
       max_range
     )
     if (expired_field) {
-      console.log('    Assigning expired field...')
+      console.log(`    Assigning expired field #${expired_field.id}...`)
       return res.send(expired_field)
     }
   } else {
@@ -246,7 +246,7 @@ router.get('/', async function (req, res, next) {
       max_range
     )
     if (expired_field) {
-      console.log('    Assigning expired field...')
+      console.log(`    Assigning expired field #${expired_field.id}...`)
       return res.send(expired_field)
     }
   }
@@ -299,7 +299,7 @@ router.get('/', async function (req, res, next) {
         first_range_top
       )
       if (first_field) {
-        console.log('    Assigning first field in new base...')
+        console.log(`    Assigning first field in base ${base}...`)
         await set_base_status(t, base, 1)
         return res.send(first_field)
       } else {
@@ -323,7 +323,7 @@ router.get('/', async function (req, res, next) {
         : subseq_range_bottom_tentative
     if (subseq_range_top === subseq_range_bottom) {
       console.log(
-        `    Base ${base} status was set to ${base_status} but there's no room left in the base!.`
+        `    Base ${base} status was set to ${base_status} but there's no room left in the base!`
       )
       await set_base_status(t, base, 2)
       return res.status(500).send(`Internal server error.`)
@@ -340,7 +340,7 @@ router.get('/', async function (req, res, next) {
     )
 
     // Step 4. Return new field
-    console.log('    Assigning new subsequent field...')
+    console.log(`    Assigning new subsequent field in base ${base}...`)
     return res.send(subseq_field)
   })
 })

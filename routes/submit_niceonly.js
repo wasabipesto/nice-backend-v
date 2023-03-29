@@ -42,7 +42,7 @@ router.post('/', async function (req, res, next) {
     {
       username: username,
       client_version: client_version,
-      nice_list: nice_list,
+      nice_list: JSON.stringify(nice_list),
       id: field_id,
     }
   )

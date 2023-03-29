@@ -21,10 +21,12 @@ router.post('/', async function (req, res, next) {
     { id: field_id }
   )
   if (!selected_field) {
+    console.log(`    Error: field ${field_id} does not exist.`)
     return res.status(400).send('Error: field does not exist.')
   }
   // check if field is complete
   if (selected_field.completed_time != null) {
+    console.log(`    Error: field ${field_id} has already been submitted.`)
     return res.status(400).send('Error: field has already been submitted.')
   }
   // check distribution covers all values
@@ -33,6 +35,7 @@ router.post('/', async function (req, res, next) {
     unique_count_keys.length !== selected_field.base ||
     new Set(unique_count_keys).size !== unique_count_keys.length
   ) {
+    console.log(`    Error: invalid unique_count keys - ${unique_count}`)
     return res.status(400).send('Error: invalid unique_count keys.')
   }
   // check quantity covers entire range
@@ -42,6 +45,7 @@ router.post('/', async function (req, res, next) {
   )
   if (sum_unique_count !== +selected_field.search_range) {
     console.log([sum_unique_count, +selected_field.search_range])
+    console.log(`    Error: invalid unique_count values - ${unique_count}`)
     return res.status(400).send('Error: invalid unique_count values.')
   }
   // check there are enough near misses
@@ -52,6 +56,9 @@ router.post('/', async function (req, res, next) {
       (v) => v === i
     ).length
     if (unique_count_value !== count_near_misses) {
+      console.log(
+        `    Error: invalid near_misses count - expected ${unique_count_value} but got ${count_near_misses}`
+      )
       return res.status(400).send('Error: invalid near_misses count.')
     }
   }
@@ -82,9 +89,6 @@ router.post('/', async function (req, res, next) {
       id: field_id,
     }
   )
-  if (!updated_field) {
-    return res.status(500).send('Error: field could not be updated.')
-  }
 
   res.status(200).send('Success.')
 })

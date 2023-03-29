@@ -185,8 +185,8 @@ const job = schedule.scheduleJob('*/10 * * * *', async function () {
       if (last_field_niceonly) {
         // some fields in base (status 1+)
         if (
-          last_field_niceonly.search_end === i.range_start ||
-          last_field_niceonly.search_end < last_field_detailed_end
+          last_field_niceonly.search_start === i.range_start ||
+          last_field_niceonly.search_start < last_field_detailed_end
         ) {
           // all fields assigned (status 2+)
           if (
