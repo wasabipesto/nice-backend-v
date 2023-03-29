@@ -15,7 +15,7 @@ INSERT INTO Settings (
 ),(
   'checkout_range_minimum', '100000'
 ),(
-  'checkout_range_default', '10000000'
+  'checkout_range_default', '1000000000'
 ),(
   'checkout_range_maximum', '100000000000000'
 );
