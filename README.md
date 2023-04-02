@@ -21,7 +21,7 @@ The main function of this app lies in a set of APIs that boil down to claiming, 
 
 ### Fields
 
-Each field is a set of contiguous numbers valid in one base. Bases are assigned seni-randomly unless a specific base is requested with the `base` parameter. Within a base, `detailed` fields start from the bottom of the valid base range and increase while `niceonly` fields start at the top and decrease until they reach the bottom of the valid range or meet the top of the `detailed` fields. This difference is to avoid duplicating work between the two queues.
+Each field is a set of contiguous numbers valid in one base. Bases are assigned semi-randomly unless a specific base is requested with the `base` parameter. Within a base, `detailed` fields start from the bottom of the valid base range and increase while `niceonly` fields start at the top and decrease until they reach the bottom of the valid range or meet the top of the `detailed` fields. This difference is to avoid duplicating work between the two queues.
 
 ### Claiming
 
@@ -31,7 +31,7 @@ Clients can make certain requests when claiming fields:
 - `max_range` can be set to request a field less than or equal to the specified size. An expired field may be returned that is smaller than the specified size or a new field may be created with that size.
   - The current minimum, maximum, and default values can be found from the endpoint `/settings`. If the requested size is less than the minimum, a 400 error will be returned. If the requested size is greater than the max, the value will be clamped to the max size.
   - This can be helpful to reduce if your processor cannot process the default range size within 24 hours. Alternatively, if your machine is much faster you may increase this value to reduce the number of network calls.
-- `base` can be set to request a field in a specific base. This will return a 400 error if there are no available fiels in the specified base.
+- `base` can be set to request a field in a specific base. This will return a 400 error if there are no available fields in the specified base.
   - If no base is specified, there is a `claim_chance_random` probability that a random base is given. This value can be found from the `/settings` endpoint.
 - `field` can be set to reclaim a specific field that you have claimed before. This could be a field that is or is not expired, but must not already be completed.
 
