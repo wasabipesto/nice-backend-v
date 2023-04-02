@@ -260,7 +260,11 @@ router.get('/', async function (req, res, next) {
 
     // re-assign the requested field if the username matches
     const requested_field = await get_field_by_id(db, requested_field_id)
-    if (requested_field && requested_field.username == username) {
+    if (
+      requested_field &&
+      requested_field.username == username &&
+      requested_field.completed_time == null
+    ) {
       const requested_field_updated = await assign_expired_by_id(
         db,
         requested_field_id,
@@ -276,7 +280,9 @@ router.get('/', async function (req, res, next) {
     } else {
       return res
         .status(400)
-        .send('Error: field does not exist or is not registered by you.')
+        .send(
+          'Error: field does not exist, is complete, or is not registered by you.'
+        )
     }
   }
 

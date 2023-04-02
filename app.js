@@ -5,6 +5,8 @@ const cookieParser = require('cookie-parser')
 const logger = require('morgan')
 
 const dashboardRouter = require('./routes/dashboard.js')
+const settingsRouter = require('./routes/settings.js')
+const basesRouter = require('./routes/bases.js')
 const numbersRouter = require('./routes/numbers.js')
 const fieldsRouter = require('./routes/fields.js')
 
@@ -28,6 +30,8 @@ app.use(cookieParser())
 app.use(express.static(path.join(__dirname, 'public')))
 
 app.use('/api/dashboard', dashboardRouter)
+app.use('/api/settings', settingsRouter)
+app.use('/api/bases', basesRouter)
 app.use('/api/numbers', numbersRouter)
 app.use('/api/fields', fieldsRouter)
 

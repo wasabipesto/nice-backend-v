@@ -17,7 +17,7 @@ router.get('/', async function (req, res, next) {
       WHERE \
         NiceNumbers.uniques/CAST(SearchFieldsDetailed.base AS DECIMAL) \
           >= ${min_niceness} AND \
-          NiceNumbers.number > ${min_number} \
+          NiceNumbers.number >= ${min_number} \
       ORDER BY number ASC \
       LIMIT ${limit}',
       {

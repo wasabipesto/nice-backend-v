@@ -138,7 +138,7 @@ const job = schedule.scheduleJob('*/10 * * * *', async function () {
       const last_field_detailed = await db.oneOrNone(
         'SELECT * FROM SearchFieldsDetailed WHERE \
           base = ${base} \
-        ORDER BY id DESC LIMIT 1;',
+        ORDER BY search_end DESC LIMIT 1;',
         { base: base }
       )
       let last_field_detailed_end
