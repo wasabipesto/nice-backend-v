@@ -100,6 +100,7 @@ After requesting a `detailed` field, you must return two objects:
   - the values are the number of unique digits
 
 ```
+POST /submit/detailed
 {
   id: 189676,
   username: "demoux",
@@ -164,6 +165,7 @@ After requesting a `niceonly` field, you must return one object:
 - `nice_list`, an array of 100% nice numbers
 
 ```
+POST /submit/niceonly
 {
   id: 18316,
   username: "celebrimbor",
@@ -197,11 +199,6 @@ cd nice-backend-v
 curl -fsSL https://deb.nodesource.com/setup_19.x | sudo -E bash -
 sudo apt-get install -y nodejs
 npm install
+git secret reveal
 npm start
-```
-
-### Docker
-
-```
-docker run --rm -p 3000:3000 -d $( docker build -q https://raw.githubusercontent.com/wasabipesto/nice-backend-v/main/Dockerfile )
 ```

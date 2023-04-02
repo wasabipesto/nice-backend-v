@@ -200,7 +200,9 @@ router.get('/', async function (req, res, next) {
   let base
   const settings = await get_settings(db)
   const username = req.query.username || settings.username_default
-  const max_range = +req.query.max_range || +settings.checkout_range_default
+  const max_range =
+    Math.min(+req.query.max_range, +settings.checkout_range_maximum) ||
+    +settings.checkout_range_default
   const claim_duration_hours = +settings.claim_duration_hours
   const claim_chance_random = +settings.claim_chance_random
   if (
