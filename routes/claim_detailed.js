@@ -63,9 +63,15 @@ async function get_previous_field(t, base) {
   return t.one(
     'SELECT * FROM SearchFieldsDetailed WHERE \
         base = ${base} \
-      ORDER BY id DESC LIMIT 1;',
+      ORDER BY search_end DESC LIMIT 1;',
     { base: base }
   )
+}
+
+async function get_field_by_id(t, id) {
+  return t.oneOrNone('SELECT * FROM SearchFieldsDetailed WHERE id = ${id}', {
+    id: id,
+  })
 }
 
 async function assign_expired(
@@ -123,6 +129,27 @@ async function assign_expired_any_base(
       username: username,
       claim_duration_hours: claim_duration_hours,
       max_range: max_range,
+    }
+  )
+}
+
+async function assign_expired_by_id(
+  t,
+  requested_field_id,
+  username,
+  claim_duration_hours
+) {
+  return t.oneOrNone(
+    "UPDATE SearchFieldsDetailed \
+    SET \
+      username = ${username}, \
+      claimed_time = now(), \
+      expired_time = now() + interval '1 hour' * ${claim_duration_hours} \
+    WHERE id = ${id} RETURNING *;",
+    {
+      id: requested_field_id,
+      username: username,
+      claim_duration_hours: claim_duration_hours,
     }
   )
 }
@@ -224,6 +251,35 @@ router.get('/', async function (req, res, next) {
   }
 
   // ASSIGN EXPIRED FIELD
+  if (req.query.field) {
+    // the user requested a specific base
+    const requested_field_id = +req.query.field
+    if (!Number.isInteger(requested_field_id)) {
+      return res.status(400).send('Error: requested field id is invalid.')
+    }
+
+    // re-assign the requested field if the username matches
+    const requested_field = await get_field_by_id(db, requested_field_id)
+    if (requested_field && requested_field.username == username) {
+      const requested_field_updated = await assign_expired_by_id(
+        db,
+        requested_field_id,
+        username,
+        claim_duration_hours
+      )
+      if (requested_field_updated) {
+        console.log(
+          `    Re-assigning requested field #${requested_field_id}...`
+        )
+        return res.send(requested_field_updated)
+      }
+    } else {
+      return res
+        .status(400)
+        .send('Error: field does not exist or is not registered by you.')
+    }
+  }
+
   if (req.query.base) {
     // try to assign from the requested base
     const expired_field = await assign_expired(
