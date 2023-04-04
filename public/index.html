@@ -209,7 +209,7 @@
             title: 'Base',
           },
           yaxis: {
-            tickformat: ',.0%',
+            tickformat: ',.1%',
           },
         }
         var data = [
@@ -218,7 +218,7 @@
             y: response.base_data.map(
               (item) => item.range_complete_detailed / item.range_total
             ),
-            name: 'Searched in Detail',
+            name: 'Detailed',
             type: 'bar',
           },
           {
@@ -229,7 +229,7 @@
                 1 - item.range_complete_detailed / item.range_total
               )
             ),
-            name: 'Searched for Nice Only',
+            name: 'Nice Only',
             type: 'bar',
           },
           {
