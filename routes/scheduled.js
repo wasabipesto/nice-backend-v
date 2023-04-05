@@ -164,10 +164,6 @@ const job = schedule.scheduleJob('*/10 * * * *', async function () {
             if (i.status_detailed !== 3) {
               await set_base_status_detailed(db, base, 3)
             }
-            if (i.status_niceonly !== 3) {
-              await set_base_status_niceonly(db, base, 3)
-            }
-            return // we're done here
           } else {
             // not all fields completed (status 2)
             if (i.status_detailed !== 2) {
@@ -188,46 +184,48 @@ const job = schedule.scheduleJob('*/10 * * * *', async function () {
         }
       }
 
-      const last_field_niceonly = await db.oneOrNone(
-        'SELECT * FROM SearchFieldsNiceonly WHERE \
-          base = ${base} \
-        ORDER BY id DESC LIMIT 1;',
-        { base: base }
-      )
-      if (last_field_niceonly) {
-        // some fields in base (status 1+)
-        const last_field_niceonly_start = BigInt(
-          last_field_niceonly.search_start
+      if (i.status_niceonly !== 3) {
+        const last_field_niceonly = await db.oneOrNone(
+          'SELECT * FROM SearchFieldsNiceonly WHERE \
+            base = ${base} \
+          ORDER BY id DESC LIMIT 1;',
+          { base: base }
         )
-        if (
-          last_field_niceonly_start === base_range_start ||
-          last_field_niceonly_start < last_field_detailed_end
-        ) {
-          // all fields assigned (status 2+)
+        if (last_field_niceonly) {
+          // some fields in base (status 1+)
+          const last_field_niceonly_start = BigInt(
+            last_field_niceonly.search_start
+          )
           if (
-            range_complete_niceonly + range_complete_detailed >=
-            base_range_total
+            last_field_niceonly_start === base_range_start ||
+            last_field_niceonly_start < last_field_detailed_end
           ) {
-            // all fields completed (status 3)
-            if (i.status_niceonly !== 3) {
-              await set_base_status_niceonly(db, base, 3)
+            // all fields assigned (status 2+)
+            if (
+              range_complete_niceonly + range_complete_detailed >=
+              base_range_total
+            ) {
+              // all fields completed (status 3)
+              if (i.status_niceonly !== 3) {
+                await set_base_status_niceonly(db, base, 3)
+              }
+            } else {
+              // not all fields completed (status 2)
+              if (i.status_niceonly !== 2) {
+                await set_base_status_niceonly(db, base, 2)
+              }
             }
           } else {
-            // not all fields completed (status 2)
-            if (i.status_niceonly !== 2) {
-              await set_base_status_niceonly(db, base, 2)
+            // not all fields assigned (status 1)
+            if (i.status_niceonly !== 1) {
+              await set_base_status_niceonly(db, base, 1)
             }
           }
         } else {
-          // not all fields assigned (status 1)
-          if (i.status_niceonly !== 1) {
-            await set_base_status_niceonly(db, base, 1)
+          // no fields in base (status 0)
+          if (i.status_niceonly !== 0) {
+            await set_base_status_detailed(db, base, 0)
           }
-        }
-      } else {
-        // no fields in base (status 0)
-        if (i.status_niceonly !== 0) {
-          await set_base_status_detailed(db, base, 0)
         }
       }
     })
