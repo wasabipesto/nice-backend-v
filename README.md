@@ -31,11 +31,12 @@ Clients can make certain requests when claiming fields:
 - `max_range` can be set to request a field less than or equal to the specified size. An expired field may be returned that is smaller than the specified size or a new field may be created with that size.
   - The current minimum, maximum, and default values can be found from the endpoint `/settings`. If the requested size is less than the minimum, a 400 error will be returned. If the requested size is greater than the max, the value will be clamped to the max size.
   - This can be helpful to reduce if your processor cannot process the default range size within 24 hours. Alternatively, if your machine is much faster you may increase this value to reduce the number of network calls.
-- `base` can be set to request a field in a specific base. This will return a 400 error if there are no available fields in the specified base.
-  - If no base is specified, there is a `claim_chance_random` probability that a random base is given. This value can be found from the `/settings` endpoint.
+- `max_base` can be set to enforce a hard limit on the maximum base that can be delivered. Use this combined with the maximum possible value in each base to determine how large of a number your client can handle. If no fields are available in or below this value, a 400 error will be returned.
+- `base` can be set to request a field in a specific base. This will return a 400 error if there are no available fields in the specified base. This overrides `max_base`.
+  - If no base is specified, there is a `claim_chance_random` probability that a random base is given (in `detailed` mode, this is inverted in `niceonly`). This value can be found from the `/settings` endpoint.
 - `field` can be set to reclaim a specific field that you have claimed before. This could be a field that is or is not expired, but must not already be completed.
 
-A client can claim fields from the `/claim/detailed` and `/claim/niceonly` endpoints. The returned data structure is nearly identical between the two:
+A client can claim fields from the `/claim/detailed` and `/claim/niceonly` endpoints. The returned data structure is essentially identical between the two:
 
 #### Returns
 

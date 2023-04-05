@@ -43,19 +43,25 @@ async function set_base_status(t, base, status_code) {
   )
 }
 
-async function get_incomplete_base_random(t) {
-  return t.one(
+async function get_incomplete_base_random(t, max_base) {
+  return t.oneOrNone(
     'SELECT * FROM BaseData \
-    WHERE status_detailed < 2 \
-    ORDER BY RANDOM () LIMIT 1;'
+    WHERE \
+      status_detailed < 2 AND \
+      base <= ${max_base} \
+    ORDER BY RANDOM () LIMIT 1;',
+    { max_base: max_base }
   )
 }
 
-async function get_incomplete_base_ordered(t) {
-  return t.one(
+async function get_incomplete_base_ordered(t, max_base) {
+  return t.oneOrNone(
     'SELECT * FROM BaseData \
-    WHERE status_detailed < 2 \
-    ORDER BY base ASC LIMIT 1;'
+    WHERE \
+      status_detailed < 2 AND \
+      base <= ${max_base} \
+    ORDER BY base ASC LIMIT 1;',
+    { max_base: max_base }
   )
 }
 
@@ -109,6 +115,7 @@ async function assign_expired_any_base(
   t,
   username,
   claim_duration_hours,
+  max_base,
   max_range
 ) {
   return t.oneOrNone(
@@ -120,6 +127,7 @@ async function assign_expired_any_base(
     WHERE id = ( \
       SELECT id FROM SearchFieldsDetailed \
       WHERE \
+        base <= ${max_base} AND \
         search_range <= ${max_range} AND \
         completed_time IS NULL AND \
         expired_time < now() \
@@ -128,6 +136,7 @@ async function assign_expired_any_base(
     {
       username: username,
       claim_duration_hours: claim_duration_hours,
+      max_base: max_base,
       max_range: max_range,
     }
   )
@@ -230,6 +239,7 @@ router.get('/', async function (req, res, next) {
   const max_range =
     Math.min(+req.query.max_range, +settings.checkout_range_maximum) ||
     +settings.checkout_range_default
+  const max_base = +req.query.max_base || 120
   const claim_duration_hours = +settings.claim_duration_hours
   const claim_chance_random = +settings.claim_chance_random
   if (
@@ -243,12 +253,8 @@ router.get('/', async function (req, res, next) {
   if (req.query.base) {
     // the user requested a specific base
     base = +req.query.base
-    if (!Number.isInteger(base) || base % 5 === 1) {
-      return res
-        .status(400)
-        .send(
-          'Error: requested base is invalid. Base must be an integer and not 1 mod 5.'
-        )
+    if (!Number.isInteger(base) || base % 5 === 1 || base % 4 === 3) {
+      return res.status(400).send('Error: requested base is invalid.')
     }
   }
 
@@ -307,6 +313,7 @@ router.get('/', async function (req, res, next) {
       db,
       username,
       claim_duration_hours,
+      max_base,
       max_range
     )
     if (expired_field) {
@@ -334,11 +341,15 @@ router.get('/', async function (req, res, next) {
     } else {
       // no request - get a valid one
       if (Math.random() < claim_chance_random) {
-        base_data = await get_incomplete_base_random(t)
+        base_data = await get_incomplete_base_random(t, max_base)
       } else {
-        base_data = await get_incomplete_base_ordered(t)
+        base_data = await get_incomplete_base_ordered(t, max_base)
       }
-      base = +base_data.base
+      if (base_data) {
+        base = +base_data.base
+      } else {
+        return res.status(400).send(`No available fields below max_base.`)
+      }
     }
     const base_status = +base_data.status_detailed
 
