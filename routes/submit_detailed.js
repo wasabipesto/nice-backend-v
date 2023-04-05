@@ -64,13 +64,16 @@ router.post('/', async function (req, res, next) {
   }
 
   // INSERT NEAR MISSES
-  if (near_misses.length) {
-    const nm_columns = new pgp.helpers.ColumnSet(['id', 'number', 'uniques'])
+  if (Object.keys(near_misses).length > 0) {
+    const nm_columns = new pgp.helpers.ColumnSet([
+      'field_id',
+      'number',
+      'uniques',
+    ])
     const nm_data = Object.entries(near_misses).map(([number, uniques]) => {
-      return { id: field_id, number: number, uniques: uniques }
+      return { field_id: field_id, number: number, uniques: uniques }
     })
-    console.log(nm_data)
-    db.none(pgp.helpers.insert(nm_data, nm_columns, 'NiceNumbers'))
+    db.none(pgp.helpers.insert(nm_data, nm_columns, 'nicenumbers'))
   }
 
   // UPDATE FIELD
