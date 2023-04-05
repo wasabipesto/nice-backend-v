@@ -33,17 +33,20 @@ async function set_base_status_niceonly(t, base, status_code) {
 }
 
 const job = schedule.scheduleJob('*/10 * * * *', async function () {
-  console.log('Starting maintenance...')
+  console.log('    Scheduled jobs starting...')
 
   // GET BASES TO UPDATE
   const base_data = await db.many('SELECT * FROM BaseData ORDER BY base ASC;')
   await Promise.all(
     base_data.map(async (i) => {
       const base = i.base
+      const base_range_start = BigInt(i.range_start)
+      const base_range_end = BigInt(i.range_end)
+      const base_range_total = BigInt(i.range_total)
 
       // CALCULATE STATISTICS
       // get completed ranges
-      const { range_complete_detailed } = await db.one(
+      const range_complete_detailed_result = await db.one(
         'SELECT \
           sum(search_range) AS range_complete_detailed \
         FROM SearchFieldsDetailed \
@@ -52,7 +55,11 @@ const job = schedule.scheduleJob('*/10 * * * *', async function () {
           completed_time IS NOT NULL;',
         { base: base }
       )
-      const { range_complete_niceonly } = await db.one(
+      const range_complete_detailed =
+        range_complete_detailed_result.range_complete_detailed !== null
+          ? BigInt(range_complete_detailed_result.range_complete_detailed)
+          : 0
+      const range_complete_niceonly_result = await db.one(
         'SELECT \
           sum(search_range) AS range_complete_niceonly \
         FROM SearchFieldsNiceonly \
@@ -61,6 +68,11 @@ const job = schedule.scheduleJob('*/10 * * * *', async function () {
           completed_time IS NOT NULL;',
         { base: base }
       )
+      const range_complete_niceonly =
+        range_complete_niceonly_result.range_complete_niceonly !== null
+          ? BigInt(range_complete_niceonly_result.range_complete_niceonly)
+          : 0
+
       // get unique distributions
       const unique_distribution = await db
         .manyOrNone(
@@ -126,8 +138,8 @@ const job = schedule.scheduleJob('*/10 * * * *', async function () {
         WHERE base = ${base};',
         {
           base: base,
-          range_complete_detailed: range_complete_detailed || 0,
-          range_complete_niceonly: range_complete_niceonly || 0,
+          range_complete_detailed: range_complete_detailed,
+          range_complete_niceonly: range_complete_niceonly,
           niceness_mean: niceness_mean,
           niceness_stdev: niceness_stdev,
           niceness_distribution: niceness_distribution,
@@ -143,11 +155,11 @@ const job = schedule.scheduleJob('*/10 * * * *', async function () {
       )
       let last_field_detailed_end
       if (last_field_detailed) {
-        last_field_detailed_end = last_field_detailed.search_end
+        last_field_detailed_end = BigInt(last_field_detailed.search_end)
         // some fields in base (status 1+)
-        if (last_field_detailed_end === i.range_end) {
+        if (last_field_detailed_end === base_range_end) {
           // all fields assigned (status 2+)
-          if (range_complete_detailed === i.range_total) {
+          if (range_complete_detailed === base_range_total) {
             // all fields completed (status 3)
             if (i.status_detailed !== 3) {
               await set_base_status_detailed(db, base, 3)
@@ -184,14 +196,17 @@ const job = schedule.scheduleJob('*/10 * * * *', async function () {
       )
       if (last_field_niceonly) {
         // some fields in base (status 1+)
+        const last_field_niceonly_start = BigInt(
+          last_field_niceonly.search_start
+        )
         if (
-          last_field_niceonly.search_start === i.range_start ||
-          last_field_niceonly.search_start < last_field_detailed_end
+          last_field_niceonly_start === base_range_start ||
+          last_field_niceonly_start < last_field_detailed_end
         ) {
           // all fields assigned (status 2+)
           if (
             range_complete_niceonly + range_complete_detailed >=
-            i.range_total
+            base_range_total
           ) {
             // all fields completed (status 3)
             if (i.status_niceonly !== 3) {
@@ -217,7 +232,7 @@ const job = schedule.scheduleJob('*/10 * * * *', async function () {
       }
     })
   )
-  console.log('Maintenance complete!')
+  console.log('    Scheduled jobs complete!')
 })
 
 module.exports = job
