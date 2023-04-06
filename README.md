@@ -1,6 +1,6 @@
 # nice-backend-v
 
-Choo-choo! Join the coordinated, distributed search for nice numbers.
+> Join the coordinated, distributed search for nice numbers.
 
 ## Why does this exist?
 
@@ -186,7 +186,11 @@ This server also has various endpoints you can use to query from the database. F
   - `min_niceness` can be set to only find numbers with a "niceness" over a certain value. If you are only checking for new nice numbers, you should set this to `1`.
   - `min_number` can be set to limit results to the specified value. This can be useful to iterate through the entire list paginated.
   - `limit` can be set to increase/decrease the number of returned values at once. The current default is 10000.
-- `/fields` is currently in progress.
+- `/fields` has several endpoints as follows:
+  - `/fields/{detailed,niceonly}/by-base` returns all fields in a specific base by ID ascending. You should supply a base with the `base` parameter and paginate with the `limit` and `after` parameters.
+  - `/fields/{detailed,niceonly}/incomplete` is similar to `by-base` except it returns all incomplete fields. There is currently no base filtering.
+  - `/fields/{detailed,niceonly}/stats` returns a few interesting statistics (currently `total_hash_rate`, `avg_hash_rate`, and `avg_seconds_per_field`) from fields completed within the last hour. You can configure the number of hours to "look back" with the `hours` parameter.
+  - `/fields/niceonly/found-nice` is a single endpoint that returns all `niceonly` fields with a non-empty `nice_list`. If this endpoint returns data, we've found a nice number!
 
 ### Running
 

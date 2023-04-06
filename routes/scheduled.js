@@ -184,7 +184,7 @@ const job = schedule.scheduleJob('*/10 * * * *', async function () {
         }
       }
 
-      if (i.status_niceonly !== 3) {
+      if (+i.status_niceonly < 2) {
         const last_field_niceonly = await db.oneOrNone(
           'SELECT * FROM SearchFieldsNiceonly WHERE \
             base = ${base} \
