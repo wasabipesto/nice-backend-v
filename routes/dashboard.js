@@ -9,12 +9,14 @@ router.get('/', async function (req, res, next) {
     const nice_numbers = await db.manyOrNone(
       'SELECT \
         NiceNumbers.number AS number, \
-        NiceNumbers.uniques/CAST(SearchFieldsDetailed.base AS DECIMAL) \
-          AS niceness, \
+        CAST( \
+          NiceNumbers.uniques/CAST(SearchFieldsDetailed.base AS DECIMAL) AS DECIMAL(6,5) \
+        ) AS niceness, \
         SearchFieldsDetailed.username AS discoverer \
       FROM NiceNumbers \
       JOIN SearchFieldsDetailed ON \
         NiceNumbers.field_id = SearchFieldsDetailed.id \
+      WHERE NiceNumbers.uniques/CAST(SearchFieldsDetailed.base AS DECIMAL) > 0.94 \
       ORDER BY niceness DESC LIMIT 10000'
     )
     return res.send({
