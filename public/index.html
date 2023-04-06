@@ -108,19 +108,25 @@
                 </li>
               </ul>
             </div>
+            <div class="box content">
+              <div id="search-range"></div>
+            </div>
           </div>
           <div class="column is-three-fifths">
             <div class="box content">
-              <div id="niceness"></div>
+              <div id="numbers"></div>
             </div>
             <div class="box content">
-              <div id="numbers"></div>
+              <div id="niceness"></div>
             </div>
             <div class="box content">
               <div id="distribution"></div>
             </div>
             <div class="box content">
-              <div id="search-range"></div>
+              <div id="history-detailed"></div>
+            </div>
+            <div class="box content">
+              <div id="history-niceonly"></div>
             </div>
           </div>
         </div>
@@ -141,6 +147,28 @@
         )
         progressBar.value = current_base.range_complete_detailed
         progressBar.max = current_base.range_total
+
+        var layout = {
+          title: 'Notably Nice Numbers',
+          margin: { l: 60, r: 40, t: 60, b: 40 },
+          xaxis: {
+            tickformat: 'e',
+          },
+          yaxis: {
+            title: 'Niceness',
+            tickformat: ',.0%',
+          },
+          hovermode: 'closest',
+        }
+        var data = [
+          {
+            x: response.nice_numbers.map((item) => item.number),
+            y: response.nice_numbers.map((item) => item.niceness),
+            mode: 'markers',
+          },
+        ]
+        var config = { responsive: true }
+        Plotly.newPlot('numbers', data, layout, config)
 
         var layout = {
           title: 'Niceness Mean and Standard Deviation',
@@ -202,28 +230,30 @@
 
         var layout = {
           title: 'Search Completeness',
-          margin: { l: 60, r: 40, t: 60, b: 40 },
+          height: 800,
+          margin: { l: 40, r: 20, t: 60, b: 40 },
           showlegend: false,
           barmode: 'stack',
-          xaxis: {
+          yaxis: {
             title: 'Base',
           },
-          yaxis: {
+          xaxis: {
             tickformat: ',.1%',
           },
         }
         var data = [
           {
-            x: response.base_data.map((item) => item.base),
-            y: response.base_data.map(
+            y: response.base_data.map((item) => item.base),
+            x: response.base_data.map(
               (item) => item.range_complete_detailed / item.range_total
             ),
             name: 'Detailed',
             type: 'bar',
+            orientation: 'h',
           },
           {
-            x: response.base_data.map((item) => item.base),
-            y: response.base_data.map((item) =>
+            y: response.base_data.map((item) => item.base),
+            x: response.base_data.map((item) =>
               Math.min(
                 item.range_complete_niceonly / item.range_total,
                 1 - item.range_complete_detailed / item.range_total
@@ -231,10 +261,11 @@
             ),
             name: 'Nice Only',
             type: 'bar',
+            orientation: 'h',
           },
           {
-            x: response.base_data.map((item) => item.base),
-            y: response.base_data.map(
+            y: response.base_data.map((item) => item.base),
+            x: response.base_data.map(
               (item) =>
                 1 -
                 item.range_complete_detailed / item.range_total -
@@ -245,32 +276,65 @@
             ),
             name: 'Unsearched',
             type: 'bar',
+            orientation: 'h',
           },
         ]
         var config = { responsive: true }
         Plotly.newPlot('search-range', data, layout, config)
 
         var layout = {
-          title: 'Notably Nice Numbers',
-          margin: { l: 60, r: 40, t: 60, b: 40 },
-          xaxis: {
-            tickformat: 'e',
-          },
+          title: 'Detailed Search History',
+          height: 300,
+          margin: { l: 80, r: 40, t: 60, b: 40 },
           yaxis: {
-            title: 'Niceness',
-            tickformat: ',.0%',
-            //range: [0.9, 1.001],
+            title: 'Hash Rate (nps)',
+            tickformat: '.2e',
           },
+          hovermode: 'closest',
         }
-        var data = [
-          {
-            x: response.nice_numbers.map((item) => item.number),
-            y: response.nice_numbers.map((item) => item.niceness),
-            mode: 'markers',
-          },
-        ]
+        var groupedData = response.history.reduce(function (result, item) {
+          if (!result[item.username]) {
+            result[item.username] = {
+              x: [],
+              y: [],
+              name: item.username,
+              stackgroup: 'default',
+            }
+          }
+          result[item.username].x.push(item.end_time)
+          result[item.username].y.push(item.searched_detailed)
+          return result
+        }, {})
+        var data = Object.values(groupedData)
         var config = { responsive: true }
-        Plotly.newPlot('numbers', data, layout, config)
+        Plotly.newPlot('history-detailed', data, layout, config)
+
+        var layout = {
+          title: 'Nice-Only Search History',
+          height: 300,
+          margin: { l: 80, r: 40, t: 60, b: 40 },
+          yaxis: {
+            title: 'Hash Rate (nps)',
+            tickformat: '.2e',
+          },
+          hovermode: 'closest',
+        }
+        var groupedData = response.history.reduce(function (result, item) {
+          if (!result[item.username]) {
+            result[item.username] = {
+              x: [],
+              y: [],
+              name: item.username,
+              stackgroup: 'default',
+            }
+          }
+          result[item.username].x.push(item.end_time)
+          result[item.username].y.push(item.searched_niceonly)
+          return result
+        }, {})
+        var data = Object.values(groupedData)
+        var config = { responsive: true }
+        Plotly.newPlot('history-niceonly', data, layout, config)
       })
     </script>
   </body>

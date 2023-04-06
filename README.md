@@ -191,6 +191,7 @@ This server also has various endpoints you can use to query from the database. F
   - `/fields/{detailed,niceonly}/incomplete` is similar to `by-base` except it returns all incomplete fields. There is currently no base filtering.
   - `/fields/{detailed,niceonly}/stats` returns a few interesting statistics (currently `total_hash_rate`, `avg_hash_rate`, and `avg_seconds_per_field`) from fields completed within the last hour. You can configure the number of hours to "look back" with the `hours` parameter.
   - `/fields/niceonly/found-nice` is a single endpoint that returns all `niceonly` fields with a non-empty `nice_list`. If this endpoint returns data, we've found a nice number!
+- `/history` returns a list of time buckets per user and the total range searched by them in that time.
 
 ### Running
 
