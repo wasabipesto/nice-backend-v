@@ -233,7 +233,7 @@ const job = schedule.scheduleJob('*/10 * * * *', async function () {
   )
   console.log('    Base data complete.')
 
-  // WIP: Calculate History
+  // CALCULATE HISTORY
   // get users to record
   const users = new Set()
   const user_queries = [
