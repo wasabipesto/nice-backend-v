@@ -173,5 +173,5 @@ dist
 
 # Database import files
 
-schema/import/
+schema/
 .gitsecret/keys/random_seed
