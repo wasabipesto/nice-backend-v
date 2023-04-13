@@ -243,15 +243,15 @@ const job = schedule.scheduleJob('*/10 * * * *', async function () {
       WHERE completed_time IS NOT NULL
       GROUP BY username
       ORDER BY total_search_range DESC
-      LIMIT 8;
+      LIMIT 20;
     `),
     db.many(`
       SELECT username, SUM(search_range) as total_search_range
-      FROM SearchFieldsNiceonly
+      FROM SearchFieldsNiceonly10
       WHERE completed_time IS NOT NULL
       GROUP BY username
       ORDER BY total_search_range DESC
-      LIMIT 8;
+      LIMIT 20;
     `),
   ]
   const users_returned = await Promise.all(user_queries)
