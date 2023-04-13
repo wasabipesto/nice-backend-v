@@ -123,10 +123,7 @@
               <div id="distribution"></div>
             </div>
             <div class="box content">
-              <div id="history-detailed"></div>
-            </div>
-            <div class="box content">
-              <div id="history-niceonly"></div>
+              <div id="history"></div>
             </div>
           </div>
         </div>
@@ -284,58 +281,85 @@
         Plotly.newPlot('search-range', data, layout, config)
 
         var layout = {
-          title: 'Detailed Search History',
-          height: 300,
+          title: 'Search History',
+          height: 600,
           margin: { l: 60, r: 40, t: 60, b: 40 },
-          yaxis: {
-            title: 'Hash Rate (nps)',
-            tickformat: '.1e',
-          },
           hovermode: 'closest',
+          grid: { rows: 2, columns: 1 },
+          yaxis1: {
+            title: 'Detailed Hash Rate',
+            tickformat: '.1e',
+            domain: [0.55, 1],
+          },
+          yaxis2: {
+            title: 'Niceonly Hash Rate',
+            tickformat: '.1e',
+            domain: [0, 0.45],
+          },
+          subplot: {
+            row: [1, 2],
+            col: [1, 1],
+          },
         }
-        var groupedData = response.history.reduce(function (result, item) {
+        const usernameColors = {}
+        let colorIndex = 0
+        const defaultColors = Plotly.d3.scale.category10().range()
+        response.history.forEach((item) => {
+          if (!usernameColors.hasOwnProperty(item.username)) {
+            usernameColors[item.username] = defaultColors[colorIndex]
+            colorIndex = (colorIndex + 1) % defaultColors.length
+          }
+        })
+        var groupedDataDetailed = response.history.reduce(function (
+          result,
+          item
+        ) {
           if (!result[item.username]) {
             result[item.username] = {
               x: [],
               y: [],
               name: item.username,
               stackgroup: 'default',
+              legendgroup: item.username,
+              line: {
+                color: usernameColors[item.username],
+              },
             }
           }
           result[item.username].x.push(item.end_time)
           result[item.username].y.push(item.searched_detailed)
           return result
-        }, {})
-        var data = Object.values(groupedData)
-        var config = { responsive: true }
-        Plotly.newPlot('history-detailed', data, layout, config)
-
-        var layout = {
-          title: 'Nice-Only Search History',
-          height: 300,
-          margin: { l: 60, r: 40, t: 60, b: 40 },
-          yaxis: {
-            title: 'Hash Rate (nps)',
-            tickformat: '.1e',
-          },
-          hovermode: 'closest',
-        }
-        var groupedData = response.history.reduce(function (result, item) {
+        },
+        {})
+        var groupedDataNiceonly = response.history.reduce(function (
+          result,
+          item
+        ) {
           if (!result[item.username]) {
             result[item.username] = {
               x: [],
               y: [],
               name: item.username,
               stackgroup: 'default',
+              legendgroup: item.username,
+              yaxis: 'y2',
+              showlegend: false,
+              line: {
+                color: usernameColors[item.username],
+              },
             }
           }
           result[item.username].x.push(item.end_time)
           result[item.username].y.push(item.searched_niceonly)
           return result
-        }, {})
-        var data = Object.values(groupedData)
+        },
+        {})
+        var data = [
+          ...Object.values(groupedDataDetailed),
+          ...Object.values(groupedDataNiceonly),
+        ]
         var config = { responsive: true }
-        Plotly.newPlot('history-niceonly', data, layout, config)
+        Plotly.newPlot('history', data, layout, config)
       })
     </script>
   </body>
