@@ -225,13 +225,12 @@ const job = schedule.scheduleJob('*/10 * * * *', async function () {
         } else {
           // no fields in base (status 0)
           if (i.status_niceonly !== 0) {
-            await set_base_status_detailed(db, base, 0)
+            await set_base_status_niceonly(db, base, 0)
           }
         }
       }
     })
   )
-  console.log('    Base data complete.')
 
   // CALCULATE HISTORY
   // get users to record
@@ -247,7 +246,7 @@ const job = schedule.scheduleJob('*/10 * * * *', async function () {
     `),
     db.many(`
       SELECT username, SUM(search_range) as total_search_range
-      FROM SearchFieldsNiceonly10
+      FROM SearchFieldsNiceonly
       WHERE completed_time IS NOT NULL
       GROUP BY username
       ORDER BY total_search_range DESC
@@ -289,7 +288,7 @@ const job = schedule.scheduleJob('*/10 * * * *', async function () {
     time_buckets.push({ start_time, end_time })
   }
 
-  // generate columns & data
+  // wipe rows and insert new
   db.tx(async (t) => {
     t.none('DELETE FROM History;')
     for (let i = 0; i < time_buckets.length; i++) {
