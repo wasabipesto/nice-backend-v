@@ -140,10 +140,12 @@
       Plotly.d3.json('/api/dashboard', (err, response) => {
         var progressBar = document.getElementById('base-progress')
         const current_base = response.base_data.find(
-          (item) => item.range_total !== item.range_complete_detailed
+          (item) => item.status_niceonly < 2
         )
-        progressBar.value = current_base.range_complete_detailed
-        progressBar.max = current_base.range_total
+        progressBar.value =
+          +current_base.range_complete_detailed +
+          +current_base.range_complete_niceonly
+        progressBar.max = +current_base.range_total
 
         var layout = {
           title: 'Notably Nice Numbers',
@@ -177,7 +179,7 @@
           yaxis: {
             title: 'Niceness',
             tickformat: ',.0%',
-            range: [0.4, 0.8],
+            //range: [0.4, 0.8],
           },
         }
         var data = [

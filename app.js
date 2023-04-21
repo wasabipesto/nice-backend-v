@@ -60,4 +60,10 @@ app.use(function (err, req, res, next) {
   res.render('error')
 })
 
+// handle uncaught exceptions
+process.on('uncaughtException', function (err) {
+  console.error(err)
+  console.error('Uncaught exception occurred.')
+})
+
 module.exports = app
