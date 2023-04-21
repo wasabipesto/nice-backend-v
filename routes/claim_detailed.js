@@ -281,7 +281,7 @@ router.get('/', async function (req, res, next) {
       )
       if (requested_field_updated) {
         console.log(
-          `    Re-assigning requested field #${requested_field_id}...`
+          `Assigning requested detailed field #${requested_field_id} to ${username}.`
         )
         return res.send(requested_field_updated)
       }
@@ -304,7 +304,9 @@ router.get('/', async function (req, res, next) {
       max_range
     )
     if (expired_field) {
-      console.log(`    Assigning expired field #${expired_field.id}...`)
+      console.log(
+        `Assigning expired detailed field #${expired_field.id} to ${username}.`
+      )
       return res.send(expired_field)
     }
   } else {
@@ -317,7 +319,9 @@ router.get('/', async function (req, res, next) {
       max_range
     )
     if (expired_field) {
-      console.log(`    Assigning expired field #${expired_field.id}...`)
+      console.log(
+        `Assigning expired detailed field #${expired_field.id} to ${username}.`
+      )
       return res.send(expired_field)
     }
   }
@@ -374,12 +378,14 @@ router.get('/', async function (req, res, next) {
         first_range_end
       )
       if (first_field) {
-        console.log(`    Assigning first field in base ${base}...`)
+        console.log(
+          `Assigning first detailed field in base ${base} to ${username}.`
+        )
         await set_base_status(t, base, 1)
         return res.send(first_field)
       } else {
         console.log(
-          `    Base ${base} status was set to 0 but first field could not be assigned.`
+          `WARN: Base ${base} detailed status was set to 0 but first field could not be assigned.`
         )
         await set_base_status(t, base, 1)
       }
@@ -398,7 +404,7 @@ router.get('/', async function (req, res, next) {
         : subseq_range_end_tentative
     if (subseq_range_start === subseq_range_end) {
       console.log(
-        `    Base ${base} status was set to ${base_status} but there's no room left in the base!`
+        `WARN: Base ${base} detailed status was set to ${base_status} but there's no room left in the base!`
       )
       await set_base_status(t, base, 2)
       return res.status(500).send(`Internal server error.`)
@@ -415,7 +421,7 @@ router.get('/', async function (req, res, next) {
     )
 
     // Step 4. Return new field
-    console.log(`    Assigning new subsequent field in base ${base}...`)
+    console.log(`Assigning new detailed field in base ${base} to ${username}.`)
     return res.send(subseq_field)
   })
 })

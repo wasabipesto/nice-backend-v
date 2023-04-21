@@ -16,8 +16,6 @@ const claimNiceOnlyRouter = require('./routes/claim_niceonly.js')
 const submitDetailedRouter = require('./routes/submit_detailed.js')
 const submitNiceOnlyRouter = require('./routes/submit_niceonly.js')
 
-const scheduledJob = require('./routes/scheduled.js')
-
 const app = express()
 
 // view engine setup
@@ -42,7 +40,11 @@ app.use('/api/claim/niceonly', claimNiceOnlyRouter)
 app.use('/api/submit/detailed', submitDetailedRouter)
 app.use('/api/submit/niceonly', submitNiceOnlyRouter)
 
-scheduledJob.job()
+// start scheduled jobs
+if (app.get('env') === 'production') {
+  const scheduledJob = require('./routes/scheduled.js')
+  scheduledJob.job()
+}
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

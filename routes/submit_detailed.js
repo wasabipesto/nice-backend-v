@@ -62,6 +62,12 @@ router.post('/', async function (req, res, next) {
       return res.status(400).send('Error: invalid near_misses count.')
     }
   }
+  console.log(
+    `Accepted detailed field #${req.body.id} from ${req.body.username}/v${req.body.client_version}.`
+  )
+  if (req.app.get('env') === 'development') {
+    console.log(JSON.stringify(req.body))
+  }
 
   // INSERT NEAR MISSES
   if (Object.keys(near_misses).length > 0) {
@@ -77,7 +83,7 @@ router.post('/', async function (req, res, next) {
   }
 
   // UPDATE FIELD
-  const updated_field = await db.one(
+  const completed_field = await db.one(
     'UPDATE SearchFieldsDetailed SET \
         completed_time = now(), \
         username = ${username}, \
@@ -91,6 +97,16 @@ router.post('/', async function (req, res, next) {
       unique_distribution: unique_count,
       id: field_id,
     }
+  )
+
+  const time_seconds =
+    (completed_field.completed_time - completed_field.claimed_time) / 1000
+  console.log(
+    `  Searched ${
+      completed_field.search_range
+    } numbers in ${time_seconds} seconds at ${(
+      completed_field.search_range / time_seconds
+    ).toExponential(3)} nps`
   )
 
   res.status(200).send('Success.')

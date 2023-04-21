@@ -29,9 +29,15 @@ router.post('/', async function (req, res, next) {
   if (typeof nice_list !== 'object' && !Array.isArray(nice_list)) {
     return res.status(400).send('Error: nice_list must be a list.')
   }
+  console.log(
+    `Accepted niceonly field #${req.body.id} from ${req.body.username}/v${req.body.client_version}.`
+  )
+  if (req.app.get('env') === 'development') {
+    console.log(JSON.stringify(req.body))
+  }
 
   // UPDATE FIELD
-  await db.one(
+  const completed_field = await db.one(
     'UPDATE SearchFieldsNiceonly SET \
         completed_time = now(), \
         username = ${username}, \
@@ -45,6 +51,16 @@ router.post('/', async function (req, res, next) {
       nice_list: JSON.stringify(nice_list),
       id: field_id,
     }
+  )
+
+  const time_seconds =
+    (completed_field.completed_time - completed_field.claimed_time) / 1000
+  console.log(
+    `  Searched ${
+      completed_field.search_range
+    } numbers in ${time_seconds} seconds at ${(
+      completed_field.search_range / time_seconds
+    ).toExponential(3)} nps`
   )
 
   res.status(200).send('Success.')
