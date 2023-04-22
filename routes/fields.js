@@ -62,6 +62,7 @@ router.get('/detailed/stats', async function (req, res, next) {
   return res.send(
     await db.oneOrNone(
       "SELECT \
+        COUNT(*)::integer AS num_fields_completed, \
         SUM(search_range) / (3600 * ${hours}) AS total_hash_rate, \
         AVG( \
           search_range / EXTRACT(EPOCH FROM (completed_time - claimed_time)) \
@@ -69,7 +70,7 @@ router.get('/detailed/stats', async function (req, res, next) {
         AVG( \
           EXTRACT(EPOCH FROM (completed_time - claimed_time)) \
         ) AS avg_seconds_per_field \
-      FROM SearchFieldsNiceonly  \
+      FROM SearchFieldsDetailed \
       WHERE completed_time > (NOW() - INTERVAL '1 hour' * ${hours});",
       {
         hours: req.query.hours || 1,
@@ -81,6 +82,7 @@ router.get('/niceonly/stats', async function (req, res, next) {
   return res.send(
     await db.oneOrNone(
       "SELECT \
+        COUNT(*)::integer AS num_fields_completed, \
         SUM(search_range) / (3600 * ${hours}) AS total_hash_rate, \
         AVG( \
           search_range / EXTRACT(EPOCH FROM (completed_time - claimed_time)) \
