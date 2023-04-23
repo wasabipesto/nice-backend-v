@@ -142,7 +142,7 @@ async function assign_expired_any_base(
   )
 }
 
-async function assign_expired_by_id(
+async function assign_incomplete_by_id(
   t,
   requested_field_id,
   username,
@@ -273,7 +273,7 @@ router.get('/', async function (req, res, next) {
       requested_field.username == username &&
       requested_field.completed_time == null
     ) {
-      const requested_field_updated = await assign_expired_by_id(
+      const requested_field_updated = await assign_incomplete_by_id(
         db,
         requested_field_id,
         username,
