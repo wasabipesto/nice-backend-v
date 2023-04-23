@@ -258,9 +258,9 @@ router.get('/', async function (req, res, next) {
     }
   }
 
-  // ASSIGN EXPIRED FIELD
+  // ASSIGN REQUESTED FIELD
   if (req.query.field) {
-    // the user requested a specific base
+    // the user requested a specific field
     const requested_field_id = +req.query.field
     if (!Number.isInteger(requested_field_id)) {
       return res.status(400).send('Error: requested field id is invalid.')
