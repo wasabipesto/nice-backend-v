@@ -74,6 +74,12 @@ async function get_previous_field(t, base) {
   )
 }
 
+async function get_field_by_id(t, id) {
+  return t.oneOrNone('SELECT * FROM SearchFieldsNiceonly WHERE id = ${id}', {
+    id: id,
+  })
+}
+
 async function assign_expired(
   t,
   base,
@@ -132,6 +138,27 @@ async function assign_expired_any_base(
       claim_duration_hours: claim_duration_hours,
       max_base: max_base,
       max_range: max_range,
+    }
+  )
+}
+
+async function assign_expired_by_id(
+  t,
+  requested_field_id,
+  username,
+  claim_duration_hours
+) {
+  return t.oneOrNone(
+    "UPDATE SearchFieldsNiceonly \
+    SET \
+      username = ${username}, \
+      claimed_time = now(), \
+      expired_time = now() + interval '1 hour' * ${claim_duration_hours} \
+    WHERE id = ${id} RETURNING *;",
+    {
+      id: requested_field_id,
+      username: username,
+      claim_duration_hours: claim_duration_hours,
     }
   )
 }
@@ -228,6 +255,42 @@ router.get('/', async function (req, res, next) {
     base = +req.query.base
     if (!Number.isInteger(base) || base % 5 === 1 || base % 4 === 3) {
       return res.status(400).send('Error: requested base is invalid.')
+    }
+  }
+
+  // ASSIGN EXPIRED FIELD
+  if (req.query.field) {
+    // the user requested a specific base
+    const requested_field_id = +req.query.field
+    if (!Number.isInteger(requested_field_id)) {
+      return res.status(400).send('Error: requested field id is invalid.')
+    }
+
+    // re-assign the requested field if the username matches
+    const requested_field = await get_field_by_id(db, requested_field_id)
+    if (
+      requested_field &&
+      requested_field.username == username &&
+      requested_field.completed_time == null
+    ) {
+      const requested_field_updated = await assign_expired_by_id(
+        db,
+        requested_field_id,
+        username,
+        claim_duration_hours
+      )
+      if (requested_field_updated) {
+        console.log(
+          `Assigning requested niceonly field #${requested_field_id} to ${username}.`
+        )
+        return res.send(requested_field_updated)
+      }
+    } else {
+      return res
+        .status(400)
+        .send(
+          'Error: field does not exist, is complete, or is not registered by you.'
+        )
     }
   }
 

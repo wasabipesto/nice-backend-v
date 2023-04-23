@@ -294,6 +294,7 @@ router.get('/', async function (req, res, next) {
     }
   }
 
+  // ASSIGN EXPIRED FIELD
   if (req.query.base) {
     // try to assign from the requested base
     const expired_field = await assign_expired(
