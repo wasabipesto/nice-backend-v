@@ -238,7 +238,7 @@ router.get('/', async function (req, res, next) {
   const username = req.query.username || settings.username_default
   const max_range =
     Math.min(+req.query.max_range, +settings.checkout_range_maximum) ||
-    +settings.checkout_range_default
+    +settings.checkout_range_maximum
   const max_base = +req.query.max_base || 120
   const claim_duration_hours = +settings.claim_duration_hours
   const claim_chance_random = +settings.claim_chance_random
