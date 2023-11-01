@@ -33,7 +33,7 @@ async function set_base_status_niceonly(t, base, status_code) {
   console.log(`Set base ${base} status_niceonly to ${status_code}`)
 }
 
-const job = schedule.scheduleJob('*/10 * * * *', async function () {
+const job = schedule.scheduleJob('10 */6 * * *', async function () {
   console.log('    Scheduled jobs starting...')
 
   // GET BASES TO UPDATE

@@ -77,6 +77,7 @@ router.post('/', async function (req, res, next) {
       'uniques',
     ])
     const nm_data = Object.entries(near_misses).map(([number, uniques]) => {
+      // TODO: test if `number` and `uniques` are valid
       return { field_id: field_id, number: number, uniques: uniques }
     })
     db.none(pgp.helpers.insert(nm_data, nm_columns, 'nicenumbers')) // table name has to match case exactly
